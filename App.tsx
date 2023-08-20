@@ -1,23 +1,42 @@
 import "react-native-gesture-handler";
 import React from "react";
 import { NavigationContainer, NavigationContext } from "@react-navigation/native";
-import ColorPalette from "./screens/ColorPalette";
+import ColorPalette from "./screens/ColorPalette.tsx";
+import ColorPaletteModal from "./screens/ColorPaletteModal.tsx";
 import Home from "./screens/Home";
 import { createStackNavigator } from "@react-navigation/stack";
 
-const Stack = createStackNavigator();
+const RootStack = createStackNavigator();
+const MainStack = createStackNavigator();
 
-function App() {
+
+function MainStackScreen() {
     return (
-        <NavigationContainer>
-            <Stack.Navigator>
-                <Stack.Screen name="Home" component={Home}/>
-                <Stack.Screen 
+            <MainStack.Navigator>
+                <MainStack.Screen name="Home" component={Home}/>
+                <MainStack.Screen 
                     name="ColorPalette"
                     component={ColorPalette}
                     options={({ route }) => ({ title: route.params.name })}
                 />
-            </Stack.Navigator>
+            </MainStack.Navigator>
+    );
+};
+
+function App() {
+    return (
+        <NavigationContainer>
+            <RootStack.Navigator screenOptions={{presentation: "modal"}}>
+                <RootStack.Screen 
+                    name="Main"
+                    component={MainStackScreen}
+                    options={{ headerShown: false }}
+                />
+                <RootStack.Screen 
+                    name="ColorPaletteModal"
+                    component={ColorPaletteModal}
+                />
+            </RootStack.Navigator>
         </NavigationContainer>
     );
 };
