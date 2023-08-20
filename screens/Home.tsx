@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FlatList } from "react-native";
+import { FlatList, Button } from "react-native";
 import ColorPalettePreview, { ColorData } from "../components/ColorPalettePreview.tsx";
 import axios from "axios";
 
@@ -8,13 +8,14 @@ interface ColorPaletteData {
     paletteName: string;
     colors: ColorData[];
 }
-function Home({ navigation }) {
+function Home({ navigation, route }) {
     const [ colorPalettes, setColorPalettes ] = useState<ColorPaletteData[]>([]); 
     const [ isRefreshing, setIsRefreshing ] = useState<boolean>(false);
+    const newPalette = route.params?.newPalette;
 
     async function handleRefresh() {
         setIsRefreshing(true);
-        await setTimeout(() => {
+        setTimeout(() => {
         axios.get('https://color-palette-api.kadikraman.vercel.app/palettes')
             .then(({ data }: { data: ColorPaletteData[] }) => {
                 setColorPalettes(data);
@@ -31,10 +32,16 @@ function Home({ navigation }) {
             })
     }, []);
 
+    useEffect(() => {
+        if (newPalette) {
+            setColorPalettes(prev => [newPalette, ...prev]);
+        }
+    }, [newPalette])
+
     return (
         <FlatList
             data={colorPalettes}
-            keyExtractor={item => item.paletteName}
+            keyExtractor={item => item.paletteName + item.id}
             renderItem={({item}) => <ColorPalettePreview 
                 colorData={item.colors}
                 paletteName={item.paletteName}
@@ -47,6 +54,12 @@ function Home({ navigation }) {
             />}
             refreshing={isRefreshing}
             onRefresh={() => handleRefresh()}
+            ListHeaderComponent={() => {
+                return <Button
+                    title="Add color palette"
+                    onPress={() => { navigation.navigate('ColorPaletteModal') }}
+                />
+            }}
         />
     );
 }
